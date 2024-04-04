@@ -11,23 +11,23 @@ convert = {
 }
 
 
-def main():
-    with open("day01/input.txt", "r") as f:
-        input = f.read()
-
-    part1 = 0
-    for line in input.splitlines():
+def part1(lines):
+    sum = 0
+    for line in lines:
         numbers = [char for char in line if str.isnumeric(char)]
         # First learning here. Just add two characters and
         # convert afterward instead of converting them each to int
         # and then adding with multiplication (see part2).
-        part1 += int(numbers[0] + numbers[-1])
+        sum += int(numbers[0] + numbers[-1])
+    return sum
 
+
+def part2(lines):
     # Second learning.
     # Doing a little more work by creating a new list with all digits allows us
     # to not need awkward breaks in the loop.
-    part2 = 0
-    for line in input.splitlines():
+    sum = 0
+    for line in lines:
         numbers = []
         for start_idx in range(len(line)):
             if line[start_idx].isnumeric():
@@ -37,12 +37,13 @@ def main():
                 if line.startswith(test, start_idx):
                     numbers.append(convert[test])
                     break
-        part2 += numbers[0] * 10 + numbers[-1]
-
-    return part1, part2
+        sum += numbers[0] * 10 + numbers[-1]
+    return sum
 
 
 if __name__ == "__main__":
-    p1, p2 = main()
-    print(p1)
-    print(p2)
+    with open("day01/input.txt", "r") as f:
+        lines = f.read().splitlines()
+    p1 = part1(lines)
+    p2 = part2(lines)
+    print(p1, p2)

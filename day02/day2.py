@@ -58,9 +58,8 @@ def part2(lines: list[str]):
 
 
 if __name__ == "__main__":
-    with open("day02/input.txt", "r+") as file:
+    with open("day02/input.txt", "r") as file:
         lines = file.read().splitlines()
     p1 = part1(lines)
     p2 = part2(lines)
-    print(p1)
-    print(p2)
+    print(p1, p2)

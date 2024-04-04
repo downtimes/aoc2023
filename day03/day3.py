@@ -77,9 +77,8 @@ def part2(lines):
 
 
 if __name__ == "__main__":
-    with open("./day03/input.txt", "r+") as f:
+    with open("day03/input.txt", "r") as f:
         lines = f.read().splitlines()
     p1 = part1(lines)
     p2 = part2(lines)
-    print(p1)
-    print(p2)
+    print(p1, p2)
