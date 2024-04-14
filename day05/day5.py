@@ -89,7 +89,7 @@ def part2(blocks):
 
 
 if __name__ == "__main__":
-    with open("day05/input.txt") as f:
+    with open("day05/input.txt", "r") as f:
         blocks = f.read().split(2 * "\n")
     p1 = part1(blocks)
     p2 = part2(blocks)
