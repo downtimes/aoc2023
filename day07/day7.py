@@ -1,4 +1,8 @@
-from functools import cmp_to_key
+from collections import defaultdict
+
+
+NORMAL_ORDER = "23456789TJQKA"
+JOKER_ORDER = "J23456789TQKA"
 
 FIVE_KIND = 7
 FOUR_KIND = 6
@@ -10,7 +14,7 @@ NOTHING = 1
 
 
 def part1(hands):
-    s = sorted(hands, key=cmp_to_key(compare))
+    s = sorted(hands, key=map_to_value)
     sum = 0
     for i, h in enumerate(s, start=1):
         sum += i * h[1]
@@ -18,7 +22,7 @@ def part1(hands):
 
 
 def part2(hands):
-    s = sorted(hands, key=cmp_to_key(compare_wicked))
+    s = sorted(hands, key=map_to_value_joker)
     sum = 0
     for i, h in enumerate(s, start=1):
         sum += i * h[1]
@@ -26,97 +30,51 @@ def part2(hands):
 
 
 def count_same(s):
-    res = []
-    run = 1
-    if not len(s):
-        return res
-    last = s[0]
-
-    for e in s[1:]:
-        if e == last:
-            run += 1
-        else:
-            res.append(run)
-            run = 1
-        last = e
-    res.append(run)
+    res = defaultdict(int)
+    for c in s:
+        res[c] += 1
     return res
 
 
-def compare_wicked(h1, h2):
-    filtered1 = [c for c in h1[0] if c != "J"]
-    filtered2 = [c for c in h2[0] if c != "J"]
-    r1 = rank_of_hand(filtered1, len(h1[0]) - len(filtered1))
-    r2 = rank_of_hand(filtered2, len(h2[0]) - len(filtered2))
-    if r1 > r2:
-        return 1
-    if r1 < r2:
-        return -1
-
-    for f, s in zip(h1[0], h2[0]):
-        v1 = value_of_card_alt(f)
-        v2 = value_of_card_alt(s)
-        if v1 > v2:
-            return 1
-        if v1 < v2:
-            return -1
-    return 0
+def map_to_value_joker(entry):
+    hand = entry[0]
+    without_joker = [c for c in hand if c != "J"]
+    rank = rank_of_hand(without_joker, len(hand) - len(without_joker))
+    return (rank, [JOKER_ORDER.index(c) for c in hand])
 
 
-def rank_of_hand(h, num_j):
-    if num_j == 5:
+def map_to_value(entry):
+    h = entry[0]
+    rank = rank_of_hand(h, 0)
+    return (rank, [NORMAL_ORDER.index(c) for c in h])
+
+
+def rank_of_hand(hand, num_jokers):
+    if num_jokers == 5:
         return FIVE_KIND
 
-    s = sorted(h)
+    s = sorted(hand)
     counted = count_same(s)
-    counted.sort(reverse=True)
-    highest = counted[0] + num_j
+    clusters = sorted(counted.values(), reverse=True)
+    highest = clusters[0] + num_jokers
     if highest == 5:
         return FIVE_KIND
 
-    next = counted[1]
+    second_highest = clusters[1]
     if highest == 4:
         return FOUR_KIND
-    if highest == 3 and next == 2:
+    if highest == 3 and second_highest == 2:
         return FULL_HOUSE
     if highest == 3:
         return THREE_KIND
-    if highest == 2 and next == 2:
+    if highest == 2 and second_highest == 2:
         return TWO_PAIR
     if highest == 2:
         return PAIR
     return NOTHING
 
 
-# instead of compare function, a key function would be better
-def compare(h1, h2):
-    r1, r2 = rank_of_hand(h1[0], 0), rank_of_hand(h2[0], 0)
-    if r1 > r2:
-        return 1
-    if r1 < r2:
-        return -1
-
-    for f, s in zip(h1[0], h2[0]):
-        v1 = value_of_card(f)
-        v2 = value_of_card(s)
-        if v1 > v2:
-            return 1
-        if v1 < v2:
-            return -1
-    return 0
-
-
-def value_of_card(c):
-    CARDS = "23456789TJQKA"
-    return CARDS.index(c)
-
-
-def value_of_card_alt(c):
-    CARDS = "J23456789TQKA"
-    return CARDS.index(c)
-
-
-def map_to_hand(line):
+def convert_into_hand(line: str):
     s = line.split()
     return (s[0], int(s[1]))
 
@@ -124,7 +82,7 @@ def map_to_hand(line):
 if __name__ == "__main__":
     with open("day07/input.txt") as f:
         lines = f.read().splitlines()
-        hands = [map_to_hand(l) for l in lines]
+        hands = [convert_into_hand(l) for l in lines]
     p1 = part1(hands)
     p2 = part2(hands)
     print(p1, p2)
