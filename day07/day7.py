@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter
 
 
 NORMAL_ORDER = "23456789TJQKA"
@@ -16,24 +16,17 @@ NOTHING = 1
 def part1(hands):
     s = sorted(hands, key=map_to_value)
     sum = 0
-    for i, h in enumerate(s, start=1):
-        sum += i * h[1]
+    for rank, (_, val) in enumerate(s, start=1):
+        sum += rank * val
     return sum
 
 
 def part2(hands):
     s = sorted(hands, key=map_to_value_joker)
     sum = 0
-    for i, h in enumerate(s, start=1):
-        sum += i * h[1]
+    for rank, (_, val) in enumerate(s, start=1):
+        sum += rank * val
     return sum
-
-
-def count_same(s):
-    res = defaultdict(int)
-    for c in s:
-        res[c] += 1
-    return res
 
 
 def map_to_value_joker(entry):
@@ -49,18 +42,17 @@ def map_to_value(entry):
     return (rank, [NORMAL_ORDER.index(c) for c in h])
 
 
+# Learning number 1: Counter is a useful collection! Remember it exists.
 def rank_of_hand(hand, num_jokers):
     if num_jokers == 5:
         return FIVE_KIND
 
-    s = sorted(hand)
-    counted = count_same(s)
-    clusters = sorted(counted.values(), reverse=True)
-    highest = clusters[0] + num_jokers
+    clusters = Counter(hand).most_common(2)
+    highest = clusters[0][1] + num_jokers
     if highest == 5:
         return FIVE_KIND
 
-    second_highest = clusters[1]
+    second_highest = clusters[1][1]
     if highest == 4:
         return FOUR_KIND
     if highest == 3 and second_highest == 2:
